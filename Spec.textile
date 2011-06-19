@@ -1,0 +1,85 @@
+h1. Registrar Client
+
+This library provides a common API for communicating with multiple registrars. This is necessary since different registrars support different TLDs and different add-on services.
+
+h2. Usage
+
+To construct a client
+
+  client = Registrar::Client.new(:enom)
+
+To split a domain into its TLD and its remaining part:
+
+  name = 'example.com'
+  client.parse(name)
+  => ['example','com']
+
+To check the availability of a domain name for registration:
+
+  client.available?(name)
+  => true
+
+To register a domain name:
+
+  registrant = Registrar::Contact.new
+  registrant.first_name = 'Anthony'
+  registrant.last_name = 'Eden'
+  ...
+  
+  order = client.purchase(name, registrant)
+
+The resulting order may be complete...
+  
+  domain = order.domain if order.complete?
+  => #<Registrar::Domain:0x10034d298>
+  domain.name
+  => "example.com"
+
+Or the resulting order may be in process...
+
+  order.status unless order.complete?
+  => :open
+  
+If you need to pass in additional purchase options:
+
+  purchase_options = Registrar::PurchaseOptions.new
+  purchase_options.name_servers << Registrar::NameServer.new('ns1.example.com')
+  purchase_options.name_servers << Registrar::NameServer.new('ns2.example.com')
+  purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('name', 'value')
+  purchase_options.number_of_years = 2
+
+  order = client.purchase(name, registrant, purchase_options)
+  domain = order.domain
+  => #<Registrar::Domain:"example.com">
+  domain.name_servers
+  => [#<Registrar::NameServer:"ns1.example.com">, #<Registrar::Domain:"ns2.example.com">]
+
+To find an already purchased domain by its name so you can get more details:
+
+  domain = client.find('example.com')
+  => #<Registrar::Domain:"example.com">
+
+To renew a domain:
+
+  domain.expires_on
+  => '2011-03-04'
+  domain.renew
+  => true
+  domain.expires_on
+  => '2012-03-04'
+
+To delete a registration (this will not refund):
+
+  ip_address = '1.2.3.4'
+  domain.delete(ip_address)
+  => true
+
+To get a list of supported TLDs along with properties:
+
+  tld = client.tlds.first
+  tld.name
+  => "com"
+  tld.max_years
+  => 10
+ 
+  
