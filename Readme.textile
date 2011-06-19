@@ -6,4 +6,10 @@ h2. Usage
 
 To construct a client
 
-  client = Registrar::Client.new(:enom)
+  require 'registrar'
+  require 'registrar/provider/enom'
+
+  provider = Registrar::Provider::Enom.new
+  client = Registrar::Client.new(provider)
+
+  

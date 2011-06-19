@@ -1,3 +1,5 @@
+require 'httparty'
+
 require 'registrar/client'
 
 module Registrar
