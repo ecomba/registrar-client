@@ -1,7 +1,49 @@
 module Registrar
   module Provider
+    class Enom
+      include HTTParty
+
+      attr_accessor :url, :username, :password
+
+      def initialize(url, username, password)
+        @url = url
+        @username = username
+        @password = password
+      end
+
+      def execute(query)
+        Encoding.default_internal = Encoding.default_external = "UTF-8"
+        response = self.class.get(
+          url, 
+          :query => query, 
+          :parser => EnomParser
+        )['interface_response']
+
+        if response['ErrCount'] != '0'
+          raise EnomError.new(response)
+        end  
+        response
+      end
+      private :execute
+
+      def base_query
+        {
+          'UID' => username,
+          'PW' => password,
+          'ResponseType' => 'XML'
+        }
+      end
+
+      def parse(name)
+        response = execute(base_query.merge(
+          'Command' => 'ParseDomain', 
+          'PassedDomain' => name
+        ))
+        [response['ParseDomain']['SLD'], response['ParseDomain']['TLD']] 
+      end
+    end
+
     class EnomError < RuntimeError
-      
       attr_reader :response
       attr_reader :errors
 
@@ -20,59 +62,6 @@ module Registrar
     class EnomParser < HTTParty::Parser
       def body 
         @body.force_encoding('UTF-8')
-      end
-    end
-
-    class Enom
-      include HTTParty
-
-      def initialize(url, username, password)
-        @url = url
-        @username = username
-        @password = password
-      end
-
-      def url
-        @url
-      end
-      private :url
-
-      def username
-        @username
-      end
-      private :username
-
-      def password
-        @password
-      end
-      private :password
-
-
-      def execute(query)
-        Encoding.default_internal = Encoding.default_external = "UTF-8"
-        response = self.class.get(url, :query => query, :parser => EnomParser)['interface_response']
-
-        if response['ErrCount'] != '0'
-          raise EnomError.new(response)
-        end  
-        response
-      end
-      private :execute
-
-      def parse(name)
-        base_query = {
-          'UID' => username,
-          'PW' => password,
-          'ResponseType' => 'XML'
-        }
-        query = base_query.merge('Command' => 'ParseDomain', 'PassedDomain' => name)
-        response = execute(query)
-
-        if response['ErrCount'].to_i > 0
-          raise EnomError, response
-        else
-          [response['ParseDomain']['SLD'], response['ParseDomain']['TLD']]
-        end 
       end
     end
   end
