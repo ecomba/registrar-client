@@ -4,7 +4,7 @@ This library provides a common API for communicating with multiple registrars. T
 
 h2. Usage
 
-To construct a client
+To construct a client, first require both the generic API interface as well as a specific provider. Construct the provider and pass it to the client interface:
 
   require 'registrar'
   require 'registrar/provider/enom'
@@ -12,4 +12,14 @@ To construct a client
   provider = Registrar::Provider::Enom.new
   client = Registrar::Client.new(provider)
 
+To split a domain into its TLD and its remaining part:
+
+  name = 'example.com'
+  client.parse(name)
+  => ['example','com']
+
+To check the availability of a domain name for registration:
+
+  client.available?(name)
+  => true
   

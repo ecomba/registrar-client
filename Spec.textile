@@ -1,13 +1,6 @@
-To split a domain into its TLD and its remaining part:
 
-  name = 'example.com'
-  client.parse(name)
-  => ['example','com']
 
-To check the availability of a domain name for registration:
 
-  client.available?(name)
-  => true
 
 To register a domain name:
 

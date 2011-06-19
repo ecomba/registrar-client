@@ -1,5 +1,6 @@
 module Registrar
   module Provider
+    # Implementation of a registrar provider for Enom (http://www.enom.com/).
     class Enom
       include HTTParty
 
@@ -11,20 +12,30 @@ module Registrar
         @password = password
       end
 
+      def parse(name)
+        query = base_query.merge('Command' => 'ParseDomain')
+        response = execute(query.merge('PassedDomain' => name))
+        
+        [response['ParseDomain']['SLD'], response['ParseDomain']['TLD']] 
+      end
+
+      def available?(name)
+        sld, tld = parse(name)
+        
+        query = base_query.merge('Command' => 'Check')
+        response = execute(query.merge('SLD' => sld, 'TLD' => tld))
+        
+        response['RRPCode'] == '210'
+      end
+
+      private
       def execute(query)
         Encoding.default_internal = Encoding.default_external = "UTF-8"
-        response = self.class.get(
-          url, 
-          :query => query, 
-          :parser => EnomParser
-        )['interface_response']
-
-        if response['ErrCount'] != '0'
-          raise EnomError.new(response)
-        end  
+        options = {:query => query, :parser => EnomParser}
+        response = self.class.get(url, options)['interface_response']
+        raise EnomError.new(response) if response['ErrCount'] != '0'
         response
       end
-      private :execute
 
       def base_query
         {
@@ -33,14 +44,7 @@ module Registrar
           'ResponseType' => 'XML'
         }
       end
-
-      def parse(name)
-        response = execute(base_query.merge(
-          'Command' => 'ParseDomain', 
-          'PassedDomain' => name
-        ))
-        [response['ParseDomain']['SLD'], response['ParseDomain']['TLD']] 
-      end
+      
     end
 
     class EnomError < RuntimeError
