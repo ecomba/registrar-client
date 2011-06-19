@@ -1,5 +1,5 @@
 module Registrar
-  module Adapter
+  module Provider
     class Enom
 
     end

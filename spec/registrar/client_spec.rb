@@ -1,12 +1,22 @@
 require 'spec_helper'
 
 describe Registrar::Client do
+
   context "when instantiated" do
     it "requires a provider" do
-      lambda { Registrar::Client.new(:missing) }.should raise_error(Registrar::AdapterNotFoundError)
+      lambda { Registrar::Client.new }.should raise_error
     end
-    it "loads the adapter" do
-      lambda { Registrar::Client.new(:enom) }.should_not raise_error
+    it "instantiates without error" do
+      require 'registrar/provider/enom'
+      lambda { Registrar::Client.new(Registrar::Provider::Enom.new) }.should_not raise_error
+    end
+  end
+
+  let(:client) { Registrar::Client.new }
+  
+  describe "#check" do
+    it "returns an array of the name parts" do
+      
     end
   end
 end

@@ -1,6 +1,6 @@
 require 'registrar/client'
 
 module Registrar
-  class AdapterNotFoundError < RuntimeError
+  class ProviderRequiredError < RuntimeError
   end
 end

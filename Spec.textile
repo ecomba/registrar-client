@@ -1,13 +1,3 @@
-h1. Registrar Client
-
-This library provides a common API for communicating with multiple registrars. This is necessary since different registrars support different TLDs and different add-on services.
-
-h2. Usage
-
-To construct a client
-
-  client = Registrar::Client.new(:enom)
-
 To split a domain into its TLD and its remaining part:
 
   name = 'example.com'
