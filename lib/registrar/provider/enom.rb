@@ -1,5 +1,6 @@
 require 'registrar/provider/enom/contact'
 require 'registrar/provider/enom/extended_attribute'
+require 'registrar/provider/enom/order'
 
 module Registrar
   module Provider
@@ -39,10 +40,10 @@ module Registrar
         registrant = Enom::Contact.new(registrant)
              
         if registrant
-          query.merge!(registrant.to_enom("Registrant"))
-          query.merge!(registrant.to_enom("AuxBilling"))
-          query.merge!(registrant.to_enom("Tech"))
-          query.merge!(registrant.to_enom("Admin"))
+          query.merge!(registrant.to_query("Registrant"))
+          query.merge!(registrant.to_query("AuxBilling"))
+          query.merge!(registrant.to_query("Tech"))
+          query.merge!(registrant.to_query("Admin"))
         end
 
         if purchase_options.has_name_servers? 
@@ -65,7 +66,8 @@ module Registrar
          
         response = execute(query)
 
-        order = Registrar::Order.new(response['OrderID'])
+        enom_order = order(response['OrderID'])
+        order = enom_order.to_order
 
         registrant.identifier = response['RegistrantPartyID']
 
@@ -74,6 +76,17 @@ module Registrar
         domain.order = order 
         order.domains << domain
 
+        order
+      end
+
+      def order(id)
+        query = base_query.merge('Command' => 'GetOrderDetail', 'OrderID' => id.to_s)
+        response = execute(query)
+
+        order = Enom::Order.new(response['Order']['OrderID'])
+        order.order_date = response['Order']['OrderDate']
+        order.order_status = response['Order']['OrderDetail']['OrderStatus']
+        order.status = response['Order']['OrderDetail']['Status']
         order
       end
 

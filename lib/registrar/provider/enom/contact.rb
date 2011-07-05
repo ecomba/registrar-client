@@ -22,7 +22,7 @@ module Registrar
 
         # Returns a Hash that can be merged into a query.
         # Type should be one of the following: Registrant, AuxBilling, Tech, Admin
-        def to_enom(type)
+        def to_query(type)
           {
             "#{type}Address1" => contact.address_1,
             "#{type}Address2" => contact.address_2,

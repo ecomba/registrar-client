@@ -120,9 +120,22 @@ describe "registrar client integration with enom" do
       end
     end
     context "for an available .ca" do
-      pending "eventually" do
       it_behaves_like "a real-time domain with extended attributes" do
         let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.ca" }
+        let(:registrant) do
+          Registrar::Contact.new({
+            :first_name => 'Anthony',
+            :last_name => 'Eden',
+            :address_1 => '123 SW 1st Street',
+            :city => 'Anywhere',
+            :state_province => 'BC',
+            :state_province_choice => 'P',
+            :country => 'CA',
+            :postal_code => 'V6S 1P5',
+            :phone => '+14445551212',
+            :email => 'anthony@dnsimple.com'
+          })
+        end
         let(:purchase_options) do
           purchase_options = Registrar::PurchaseOptions.new
           purchase_options.name_servers << Registrar::NameServer.new('ns1.dnsimple.com')
@@ -132,7 +145,6 @@ describe "registrar client integration with enom" do
           purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('ca', :"Agreement Value", :Yes)
           purchase_options
         end
-      end
       end
     end
     context "for an available .io" do
