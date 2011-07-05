@@ -2,23 +2,9 @@
 
 
 
-To register a domain name, first construct contact:
 
-  registrant = Registrar::Contact.new
-  registrant.first_name = 'Anthony'
-  registrant.last_name = 'Eden'
-  ...
 
-Next pass the name plus the contact (as the registrant) to the purchase method:
-  
-  order = client.purchase(name, registrant)
 
-The resulting order may be complete...
-  
-  domain = order.domain if order.complete?
-  => #<Registrar::Domain:0x10034d298>
-  domain.name
-  => "example.com"
 
 Or the resulting order may be in process...
 

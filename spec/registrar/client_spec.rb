@@ -33,6 +33,7 @@ describe Registrar::Client do
   describe "#purchase" do
     let(:registrant) { Registrar::Contact.new }
     let(:order) { stub("Order") }
+    let(:purchase_options) { nil }
 
     it "requires a registrant" do
       lambda { client.purchase(name) }.should raise_error
@@ -40,7 +41,7 @@ describe Registrar::Client do
     end
     context "with a successful registration" do
       it "returns an order upon success" do
-        provider.expects(:purchase).with(name, registrant).returns(order)
+        provider.expects(:purchase).with(name, registrant, purchase_options).returns(order)
         order = client.purchase(name, registrant)
         order.should_not be_nil
       end

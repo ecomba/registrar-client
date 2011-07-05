@@ -1,5 +1,8 @@
 require 'registrar/contact'
 require 'registrar/domain'
+require 'registrar/purchase_options'
+require 'registrar/extended_attribute'
+require 'registrar/name_server'
 require 'registrar/order'
 
 module Registrar #:nodoc:
@@ -44,10 +47,11 @@ module Registrar #:nodoc:
     #
     # name - The fully-qualified domain name to purchase.
     # registrant - A complete Registrar::Contact instance.
+    # registration_options - Optional Regisrar::RegistrationOptions instance.
     #
     # Returns a Registrar::Order
-    def purchase(name, registrant)
-      provider.purchase(name, registrant)
+    def purchase(name, registrant, registration_options=nil)
+      provider.purchase(name, registrant, registration_options)
     end
   end
 end

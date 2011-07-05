@@ -1,4 +1,5 @@
 require 'registrar/provider/enom/contact'
+require 'registrar/provider/enom/extended_attribute'
 
 module Registrar
   module Provider
@@ -30,7 +31,9 @@ module Registrar
         response['RRPCode'] == '210'
       end
 
-      def purchase(name, registrant, options={})
+      def purchase(name, registrant, purchase_options=nil)
+        purchase_options ||= Registrar::PurchaseOptions.new
+
         sld, tld = parse(name)
         query = base_query.merge('Command' => 'Purchase', 'SLD' => sld, 'TLD' => tld)
         registrant = Enom::Contact.new(registrant)
@@ -42,22 +45,23 @@ module Registrar
           query.merge!(registrant.to_enom("Admin"))
         end
 
-        if options[:name_servers]
+        if purchase_options.has_name_servers? 
           query['IgnoreNSFail'] = 'Yes'
-          options[:name_servers].each_with_index do |name_server, i|
-            query["NS#{i+1}"] = name_server
+          purchase_options.name_servers.each_with_index do |name_server, i|
+            query["NS#{i+1}"] = name_server.name
           end
         else
           query['UseDNS'] = 'default'
         end
 
-        if options[:extended_attributes]
-          options[:extended_attributes].each do |name, value| 
-            query[name] = value
+        if purchase_options.has_extended_attributes?
+          extended_attributes = purchase_options.extended_attributes.map { |a| Enom::ExtendedAttribute.new(a) }
+          extended_attributes.each do |extended_attribute| 
+            query[extended_attribute.name] = extended_attribute.value
           end
         end
 
-        query['NumYears'] = options[:number_of_years] || minimum_number_of_years(tld)
+        query['NumYears'] = purchase_options.number_of_years || minimum_number_of_years(tld)
          
         response = execute(query)
 
