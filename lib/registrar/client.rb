@@ -1,4 +1,5 @@
 require 'registrar/contact'
+require 'registrar/domain'
 require 'registrar/order'
 
 module Registrar #:nodoc:

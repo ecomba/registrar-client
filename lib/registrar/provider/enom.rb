@@ -1,3 +1,5 @@
+require 'registrar/provider/enom/contact'
+
 module Registrar
   module Provider
     # Implementation of a registrar provider for Enom (http://www.enom.com/).
@@ -28,6 +30,49 @@ module Registrar
         response['RRPCode'] == '210'
       end
 
+      def purchase(name, registrant, options={})
+        sld, tld = parse(name)
+        query = base_query.merge('Command' => 'Purchase', 'SLD' => sld, 'TLD' => tld)
+        registrant = Enom::Contact.new(registrant)
+             
+        if registrant
+          query.merge!(registrant.to_enom("Registrant"))
+          query.merge!(registrant.to_enom("AuxBilling"))
+          query.merge!(registrant.to_enom("Tech"))
+          query.merge!(registrant.to_enom("Admin"))
+        end
+
+        if options[:name_servers]
+          query['IgnoreNSFail'] = 'Yes'
+          options[:name_servers].each_with_index do |name_server, i|
+            query["NS#{i+1}"] = name_server
+          end
+        else
+          query['UseDNS'] = 'default'
+        end
+
+        if options[:extended_attributes]
+          options[:extended_attributes].each do |name, value| 
+            query[name] = value
+          end
+        end
+
+        query['NumYears'] = options[:number_of_years] || minimum_number_of_years(tld)
+         
+        response = execute(query)
+
+        order = Registrar::Order.new(response['OrderID'])
+
+        registrant.identifier = response['RegistrantPartyID']
+
+        domain = Registrar::Domain.new(name) 
+        domain.registrant = registrant
+        domain.order = order 
+        order.domains << domain
+
+        order
+      end
+
       private
       def execute(query)
         Encoding.default_internal = Encoding.default_external = "UTF-8"
@@ -43,6 +88,17 @@ module Registrar
           'PW' => password,
           'ResponseType' => 'XML'
         }
+      end
+
+      def minimum_number_of_years(tld)
+        {
+          'co.uk' => 2,
+          'org.uk' => 2,
+          'nu' => 2,
+          'tm' => 10,
+          'com.mx' => 2,
+          'me.uk' => 2
+        }[tld] || 1
       end
       
     end

@@ -36,6 +36,7 @@ describe Registrar::Client do
 
     it "requires a registrant" do
       lambda { client.purchase(name) }.should raise_error
+      lambda { client.purchase(name, nil) }.should raise_error
     end
     context "with a successful registration" do
       it "returns an order upon success" do

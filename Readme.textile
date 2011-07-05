@@ -23,3 +23,26 @@ To check the availability of a domain name for registration:
   client.available?(name)
   => true
   
+To register a domain name, first construct contact:
+
+  registrant = Registrar::Contact.new(
+    :first_name => 'Anthony',
+    :last_name => 'Eden',
+    :address_1 => '123 SW 1st Street',
+    :city => 'Anywhere',
+    :country => 'US',
+    :postal_code => '12121',
+    :phone => '444 555 1212',
+    :email => 'anthony@dnsimple.com'
+  )
+  
+Next pass the name plus the contact (as the registrant) to the purchase method:
+  
+  order = client.purchase(name, registrant)
+
+The resulting order may be complete...
+  
+  domain = order.domain if order.complete?
+  => #<Registrar::Domain:0x10034d298>
+  domain.name
+  => "example.com"

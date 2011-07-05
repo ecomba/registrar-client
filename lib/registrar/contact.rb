@@ -6,6 +6,8 @@ module Registrar
     attr_accessor :address_1
     attr_accessor :address_2
     attr_accessor :city
+    attr_accessor :state_province
+    attr_accessor :state_province_choice
     attr_accessor :country
     attr_accessor :postal_code
     attr_accessor :phone

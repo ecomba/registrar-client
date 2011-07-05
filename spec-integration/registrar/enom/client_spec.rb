@@ -36,6 +36,23 @@ describe "registrar client integration with enom" do
   end
 
   describe "#purchase" do
-    
+    let(:registrant) do
+      Registrar::Contact.new({
+        :first_name => 'Anthony',
+        :last_name => 'Eden',
+        :address_1 => '123 SW 1st Street',
+        :city => 'Anywhere',
+        :country => 'US',
+        :postal_code => '12121',
+        :phone => '444 555 1212',
+        :email => 'anthony@dnsimple.com'
+      })
+    end
+    context "for an available .com" do
+      it "returns a completed order" do
+        order = client.purchase("test-#{Time.now.to_i}-#{rand(10000)}.com", registrant)
+        order.should be_complete
+      end
+    end
   end
 end

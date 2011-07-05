@@ -2,12 +2,14 @@
 
 
 
-To register a domain name:
+To register a domain name, first construct contact:
 
   registrant = Registrar::Contact.new
   registrant.first_name = 'Anthony'
   registrant.last_name = 'Eden'
   ...
+
+Next pass the name plus the contact (as the registrant) to the purchase method:
   
   order = client.purchase(name, registrant)
 
