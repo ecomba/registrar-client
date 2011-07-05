@@ -49,9 +49,14 @@ describe "registrar client integration with enom" do
       })
     end
     context "for an available .com" do
+      let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.com" }
+      let(:order) { client.purchase(name, registrant) }
       it "returns a completed order" do
-        order = client.purchase("test-#{Time.now.to_i}-#{rand(10000)}.com", registrant)
         order.should be_complete
+      end
+      it "has the domain in the order" do
+        order.domains.should_not be_empty
+        order.domains[0].name.should eq(name)
       end
     end
   end

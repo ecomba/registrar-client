@@ -42,7 +42,9 @@ Next pass the name plus the contact (as the registrant) to the purchase method:
 
 The resulting order may be complete...
   
-  domain = order.domain if order.complete?
-  => #<Registrar::Domain:0x10034d298>
+  domains = order.domains if order.complete?
+  => [#<Registrar::Domain:0x10034d298>]
+  domain = domains[0]
+  => 
   domain.name
   => "example.com"
