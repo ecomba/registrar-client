@@ -54,6 +54,9 @@ describe "registrar client integration with enom" do
       it "returns a completed order" do
         order.should be_complete
       end
+      it "has a :closed status" do
+        order.status.should eq(:closed)
+      end
       it "has the domain in the order" do
         order.domains.should_not be_empty
         order.domains[0].name.should eq(name)
@@ -67,6 +70,9 @@ describe "registrar client integration with enom" do
       it "returns a completed order" do
         order.should be_complete
       end
+      it "has a :closed status" do
+        order.status.should eq(:closed)
+      end
       it "has the domain in the order" do
         order.domains.should_not be_empty
         order.domains[0].name.should eq(name)
@@ -76,8 +82,16 @@ describe "registrar client integration with enom" do
 
   shared_examples "a non real-time domain with extended attributes" do
     describe "#purchase" do
+      let(:order) { client.purchase(name, registrant, purchase_options) }
       it "returns an open order" do
         order.should_not be_complete
+      end
+      it "has an :open status" do
+        order.status.should eq(:open)
+      end
+      it "has the domain in the order" do
+        order.domains.should_not be_empty
+        order.domains[0].name.should eq(name)
       end
     end
   end
@@ -148,7 +162,14 @@ describe "registrar client integration with enom" do
       end
     end
     context "for an available .io" do
-      it "should eventually behave like a non real-time domain with extended attributes"
+      it_behaves_like "a non real-time domain with extended attributes" do
+        let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.io" }
+        let(:purchase_options) do
+          purchase_options = Registrar::PurchaseOptions.new
+          purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('io', :"Renewal Agreement", :Yes)
+          purchase_options
+        end
+      end
     end
   end
   

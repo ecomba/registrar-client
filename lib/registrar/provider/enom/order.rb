@@ -19,7 +19,7 @@ module Registrar
           
           order.status = case order_status.downcase
           when 'open' then :open 
-          when 'closed' then :close
+          when 'closed' then :closed
           else
             order_status.downcase.to_sym
           end

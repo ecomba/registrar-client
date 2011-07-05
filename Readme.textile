@@ -49,7 +49,12 @@ The resulting order may be complete...
   domain.name
   => "example.com"
 
+Or the resulting order may be in process...
 
+  order.status unless order.complete?
+  => :open
+
+The status of the domain may be open in cases where a domain is not registered in real-time. Quite often country-code top level domains are not real-time and require additional out-of-band processing and documentation.
 
 If you need to pass in additional purchase options:
 
