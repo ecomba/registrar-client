@@ -1,3 +1,5 @@
+require 'tzinfo'
+
 require 'registrar/provider/enom/contact'
 require 'registrar/provider/enom/extended_attribute'
 require 'registrar/provider/enom/order'

@@ -24,7 +24,7 @@ module Registrar
             order_status.downcase.to_sym
           end
 
-          order.date = order_date
+          order.date = order_date 
           order
         end
       end
