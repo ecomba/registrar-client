@@ -6,22 +6,9 @@
 
 
 
-Or the resulting order may be in process...
 
-  order.status unless order.complete?
-  => :open
   
-If you need to pass in additional purchase options:
 
-  purchase_options = Registrar::PurchaseOptions.new
-  purchase_options.name_servers << Registrar::NameServer.new('ns1.example.com')
-  purchase_options.name_servers << Registrar::NameServer.new('ns2.example.com')
-  purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('name', 'value')
-  purchase_options.number_of_years = 2
-
-  order = client.purchase(name, registrant, purchase_options)
-  domain = order.domain
-  => #<Registrar::Domain:"example.com">
   domain.name_servers
   => [#<Registrar::NameServer:"ns1.example.com">, #<Registrar::Domain:"ns2.example.com">]
 
