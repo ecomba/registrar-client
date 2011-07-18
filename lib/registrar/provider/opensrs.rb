@@ -7,6 +7,7 @@ module Registrar
     class OpenSRS
       include HTTParty
       format :xml
+      #debug_output $stderr
 
       attr_accessor :url, :username, :private_key
 
@@ -37,12 +38,17 @@ module Registrar
           }
         }
 
-        execute(body)
+        response = execute(body)
+
+        items = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
+        items = items.find { |item| item['dt_assoc'] }['dt_assoc']
+        items['item'][0] == 'available'
       end
 
       private
       def execute(body)
         self.class.headers(
+          "Content-Type" => "text/xml",
           "X-Username" => username,
           "X-Signature" => signature(body),
           "Content-Length" => body.length.to_s

@@ -32,5 +32,10 @@ describe "registrar client integration with opensrs" do
         client.available?("1283475853rwjg.com").should be_true
       end
     end
+    context "for an unavailable domain" do
+      it "returns false" do
+        client.available?("google.com").should be_false
+      end
+    end
   end
 end
