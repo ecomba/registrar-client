@@ -1,5 +1,8 @@
 require 'digest/md5'
 require 'builder'
+require 'registrar/provider/opensrs/operation'
+require 'registrar/provider/opensrs/contact'
+require 'registrar/provider/opensrs/contact_set'
 
 module Registrar
   module Provider
@@ -7,7 +10,7 @@ module Registrar
     class OpenSRS
       include HTTParty
       format :xml
-      #debug_output $stderr
+      debug_output $stderr
 
       attr_accessor :url, :username, :private_key
 
@@ -18,31 +21,55 @@ module Registrar
       end
 
       def available?(name)
-        builder = Builder::XmlMarkup.new
-        body = builder.OPS_envelope { |b| 
-          b.header { |b| b.version('0.9') }
-          b.body { |b| 
-            b.data_block { |b|
-              b.dt_assoc { |b|
-                b.item("XCP", :key => "protocol")
-                b.item("LOOKUP", :key => "action")
-                b.item("DOMAIN", :key => "object")
-                b.item(:key => "attributes") { |b|
-                  b.dt_assoc { |b|
-                    b.item(name, :key => "domain")
-                    b.item("1", :key => "no_cache")
-                  }
-                }
-              }
-            }
-          }
-        }
+        operation = Operation.new(:lookup, {
+          :domain => name, 
+          :no_cache => "1",
+        })
 
-        response = execute(body)
+        response = execute(operation.to_xml)
 
         items = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
         items = items.find { |item| item['dt_assoc'] }['dt_assoc']
         items['item'][0] == 'available'
+      end
+
+      def purchase(name, registrant, purchase_options=nil)
+        contact_set = ContactSet.new({
+          'owner' => OpenSRS::Contact.new(registrant),
+          'admin' => OpenSRS::Contact.new(registrant),
+          'billing' => OpenSRS::Contact.new(registrant),
+          'tech' => OpenSRS::Contact.new(registrant)
+        })
+
+        operation = Operation.new(:sw_register, {
+          :domain => name,
+          :period => "1",
+          :reg_type => "new",
+          :reg_username => 'dnsimple',
+          :reg_password => 'password',
+          :contact_set => contact_set
+        })
+
+        response = execute(operation.to_xml)
+
+        pp response
+
+        id = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
+        items = items.find { |item| item['dt_assoc'] }['dt_assoc']
+        id = '1'
+
+        order = order(id).to_order
+
+        domain = Registrar::Domain.new(name)
+        domain.registrant = registrant
+        domain.order = order
+        order.domains << domain
+
+        order
+      end
+
+      def order(id)
+        OpenSRS::Order.new(id)
       end
 
       private

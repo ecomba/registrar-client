@@ -17,8 +17,10 @@ describe "registrar client integration with opensrs" do
     Registrar::Contact.new({
       :first_name => 'Anthony',
       :last_name => 'Eden',
+      :organization_name => 'NA',
       :address_1 => '123 SW 1st Street',
       :city => 'Anywhere',
+      :state_province => 'CA',
       :country => 'US',
       :postal_code => '12121',
       :phone => '444 555 1212',
@@ -35,6 +37,23 @@ describe "registrar client integration with opensrs" do
     context "for an unavailable domain" do
       it "returns false" do
         client.available?("google.com").should be_false
+      end
+    end
+  end
+
+  shared_examples "a real-time domain without extended attributes" do
+    describe "#purchase" do
+      let(:order) { client.purchase(name, registrant) }
+      it "returns a completed order" do
+        order.should be_complete
+      end
+    end
+  end
+
+  describe "#purchase" do
+    context "for an available .com" do
+      it_behaves_like "a real-time domain without extended attributes" do
+        let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.com" }
       end
     end
   end
