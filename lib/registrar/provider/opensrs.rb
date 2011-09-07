@@ -36,43 +36,45 @@ module Registrar
       end
 
       def purchase(name, registrant, purchase_options=nil)
-        contact_set = ContactSet.new({
-          'owner' => OpenSRS::Contact.new(registrant),
-          'admin' => OpenSRS::Contact.new(registrant),
-          'billing' => OpenSRS::Contact.new(registrant),
-          'tech' => OpenSRS::Contact.new(registrant)
-        })
 
+        response = execute(operation(name, registrant, purchase_options).to_xml)
+
+        order = order(response.body)
+        order.add_domain(name, registrant)
+        order.to_order
+      end
+
+      def order(raw_xml)
+        OpenSRS::Order.new(raw_xml)
+      end
+
+      private
+
+      def operation(name, registrant, purchase_options)
         operation = Operation.new(:sw_register, {
           :domain => name,
           :period => "1",
           :reg_type => "new",
           :reg_username => 'dnsimple',
           :reg_password => 'password',
-          :contact_set => contact_set
+          :contact_set => contact_set(registrant),
+          :tld_data => extended_attributes(purchase_options)
         })
-
-        response = execute(operation.to_xml)
-
-        items = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
-        items = items.find { |item| item['dt_assoc'] }['dt_assoc']
-        id = '1'
-
-        order = order(response.body).to_order
-
-        domain = Registrar::Domain.new(name)
-        domain.registrant = registrant
-        domain.order = order
-        order.domains << domain
-
-        order
       end
 
-      def order(id)
-        OpenSRS::Order.new(id)
+      def extended_attributes(purchase_options)
+        purchase_options.to_xml
       end
 
-      private
+      def contact_set(registrant)
+        ContactSet.new({
+          'owner' => OpenSRS::Contact.new(registrant),
+          'admin' => OpenSRS::Contact.new(registrant),
+          'billing' => OpenSRS::Contact.new(registrant),
+          'tech' => OpenSRS::Contact.new(registrant)
+        })
+      end
+
       def execute(body)
         self.class.headers(
           "Content-Type" => "text/xml",

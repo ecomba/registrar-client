@@ -23,7 +23,7 @@ describe "registrar client integration with opensrs" do
       :state_province => 'CA',
       :country => 'US',
       :postal_code => '12121',
-      :phone => '444 555 1212',
+      :phone => '+1.4445551212',
       :email => 'anthony@dnsimple.com'
     })
   end
@@ -50,10 +50,38 @@ describe "registrar client integration with opensrs" do
     end
   end
 
+  shared_examples "a real-time domain with extended attributes" do
+    describe "#purchase" do
+      let(:order) { client.purchase(name, registrant, purchase_options) }
+      it "returns a completed order" do
+        order.should be_complete
+      end
+      it "has a :closed status" do
+        order.status.should eq(:closed)
+      end
+      it "has the domain in the order" do
+        order.domains.should_not be_empty
+        order.domains[0].name.should eq(name)
+      end
+    end
+  end
+
   describe "#purchase" do
     context "for an available .com" do
       it_behaves_like "a real-time domain without extended attributes" do
         let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.com" }
+      end
+    end
+
+    context "for an available .us" do
+      it_behaves_like "a real-time domain with extended attributes" do
+        let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.us" }
+        let(:purchase_options) do
+          purchase_options = Registrar::PurchaseOptions.new
+          purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('us', :Nexus, :"US Citizen")
+          purchase_options.extended_attributes << Registrar::ExtendedAttribute.new('us', :Purpose, :"Personal")
+          purchase_options
+        end
       end
     end
   end
