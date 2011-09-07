@@ -1,6 +1,9 @@
 require 'spec_helper'
 
+require 'httparty'
 require 'registrar/provider/opensrs'
+require 'registrar/provider/opensrs/tld_data'
+require 'registrar/provider/opensrs/tld_data_us'
 
 describe "registrar client integration with opensrs" do
   let(:config) { YAML.load_file('spec-integration/opensrs.yml') }

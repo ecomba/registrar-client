@@ -58,12 +58,12 @@ module Registrar
           :reg_username => 'dnsimple',
           :reg_password => 'password',
           :contact_set => contact_set(registrant),
-          :tld_data => extended_attributes(purchase_options)
+          :tld_data => tld_data(purchase_options)
         })
       end
 
-      def extended_attributes(purchase_options)
-        purchase_options.to_xml
+      def tld_data(purchase_options)
+        TldData.build_with(purchase_options) if purchase_options
       end
 
       def contact_set(registrant)
