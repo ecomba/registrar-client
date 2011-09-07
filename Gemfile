@@ -1,6 +1,7 @@
 source :rubygems
 
 gem 'httparty'
+gem 'nokogiri'
 
 gem 'rspec'
 gem 'mocha'

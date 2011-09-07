@@ -1,5 +1,7 @@
 require 'digest/md5'
 require 'builder'
+require 'nokogiri'
+require 'registrar/provider/opensrs/order'
 require 'registrar/provider/opensrs/operation'
 require 'registrar/provider/opensrs/contact'
 require 'registrar/provider/opensrs/contact_set'
@@ -52,13 +54,11 @@ module Registrar
 
         response = execute(operation.to_xml)
 
-        pp response
-
-        id = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
+        items = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
         items = items.find { |item| item['dt_assoc'] }['dt_assoc']
         id = '1'
 
-        order = order(id).to_order
+        order = order(response.body).to_order
 
         domain = Registrar::Domain.new(name)
         domain.registrant = registrant
