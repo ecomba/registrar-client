@@ -6,6 +6,7 @@ module Registrar
         def initialize(contacts)
           @contacts = contacts
         end
+
         def to_xml(builder)
           builder.dt_assoc { |b|
             contacts.each do |key, contact|

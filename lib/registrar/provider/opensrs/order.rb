@@ -34,7 +34,7 @@ module Registrar
         def to_order
           order = Registrar::Order.new(id)
           order.successful= successful?
-          order.status= complete?
+          order.status= complete? ? :closed : :open
           domains.each { |domain| order.domains<< domain }
           order
         end

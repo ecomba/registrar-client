@@ -55,8 +55,10 @@ module Registrar
           :domain => name,
           :period => "1",
           :reg_type => "new",
+          :handle => 'process',
           :reg_username => 'dnsimple',
           :reg_password => 'password',
+          :custom_tech_contact => '1',
           :contact_set => contact_set(registrant),
           :tld_data => tld_data(purchase_options)
         })
