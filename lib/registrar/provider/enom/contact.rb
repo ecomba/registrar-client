@@ -8,7 +8,7 @@ module Registrar
         attr_reader :contact
 
         def initialize(contact)
-          raise IllegalArgument, "Contact is required" unless contact
+          raise ArgumentError, "Contact is required" unless contact
           @contact = contact
         end
 
