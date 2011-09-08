@@ -23,12 +23,7 @@ module Registrar
       end
 
       def available?(name)
-        operation = Operation.new(:lookup, {
-          :domain => name, 
-          :no_cache => "1",
-        })
-
-        response = execute(operation.to_xml)
+        response = execute(lookup_operation(name).to_xml)
 
         items = response['OPS_envelope']['body']['data_block']['dt_assoc']['item']
         items = items.find { |item| item['dt_assoc'] }['dt_assoc']
@@ -36,25 +31,37 @@ module Registrar
       end
 
       def purchase(name, registrant, purchase_options=nil)
-
-        response = execute(operation(name, registrant, purchase_options).to_xml)
-
-        order = order(response.body)
-        pp order.inspect
+        response = execute(registration_operation(name, registrant, 
+                                                  purchase_options).to_xml)
+        order = check_order(response.body)
         order.add_domain(name, registrant)
         order.to_order
       end
 
-      def order(raw_xml)
-        id = Nokogiri::XML(raw_xml).xpath("//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='id']").inner_text
-        operation = Operation.new(:get_order_info, {
-          :order_id => id})
-        Registrar::Provider::OpenSRS::Order.new(execute(operation.to_xml).to_s)
+      private
+      def check_order(xml)
+        order_info = execute(order_info_operation(order_id_from(xml)).to_xml)
+        Registrar::Provider::OpenSRS::Order.new(order_info.to_s)
       end
 
-      private
+      def order_id_from(xml)
+        Nokogiri::XML(xml).xpath(
+          "//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='id']").inner_text
+      end
 
-      def operation(name, registrant, purchase_options)
+      def order_info_operation(id)
+        operation = Operation.new(:get_order_info, {
+          :order_id => id})
+      end
+
+      def lookup_operation(name)
+        operation = Operation.new(:lookup, {
+          :domain => name, 
+          :no_cache => "1",
+        })
+      end
+
+      def registration_operation(name, registrant, purchase_options)
         operation = Operation.new(:sw_register, {
           :domain => name,
           :period => "1",

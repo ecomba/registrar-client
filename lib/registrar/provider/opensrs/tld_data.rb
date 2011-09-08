@@ -4,15 +4,24 @@ module Registrar
   module Provider
     class OpenSRS
       class TldData
-        def self.build_with(purchase_options)
-          build_us_tld_data(purchase_options.extended_attributes.select do |attribute|
-            attribute.tld == 'us'
-          end)
-        end
+        TLDS = {
+          ['us'] => ->(options)do
+            us_options = options.extended_attributes.select do |attribute|
+              attribute.tld == 'us'
+            end
+            TldDataUs.new(us_options)
+          end
+        }
 
-        private
-        def self.build_us_tld_data(options)
-          TldDataUs.new(options)
+        class << self
+          def build_with(options)
+            TLDS[tld(options)].call(options)
+          end
+
+          private
+          def tld(options)
+            options.extended_attributes.inject([]) { |a, b| a<< b.tld}.uniq
+          end
         end
       end
     end

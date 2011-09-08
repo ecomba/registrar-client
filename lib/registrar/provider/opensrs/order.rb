@@ -9,7 +9,7 @@ module Registrar
         end
         
         def id
-          field_hash_element('id')
+          field_hash_element('id').inner_text
         end
         
         def successful?
@@ -17,7 +17,7 @@ module Registrar
         end
         
         def complete?
-          status = field_hash_element("status") 
+          status = field_hash_element("status").inner_text
           status != 'pending' || status != 'waiting_ca_owner_approval'
         end
         
@@ -51,7 +51,7 @@ module Registrar
         end
 
         def field_hash_element(element)
-          @xml.xpath("//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='field_hash']/dt_assoc/item[@key='#{element}']").inner_text
+          @xml.xpath("//item[@key='field_hash']/dt_assoc/item[@key='#{element}']")
         end
       end
     end
