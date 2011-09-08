@@ -12,6 +12,14 @@ module Registrar
           @id = id
         end
 
+        def status
+          @status || 'unknown'
+        end
+
+        def order_status
+          @order_status || 'unknown'
+        end
+
         # Get a generic Registrar::Order object to use.
         def to_order
           order = Registrar::Order.new(id)
