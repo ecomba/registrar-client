@@ -17,7 +17,8 @@ module Registrar
         end
         
         def complete?
-          field_hash_element("status") == 'completed'
+          status = field_hash_element("status") 
+          status != 'pending' || status != 'waiting_ca_owner_approval'
         end
         
         def domains

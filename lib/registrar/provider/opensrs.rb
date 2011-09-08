@@ -40,6 +40,7 @@ module Registrar
         response = execute(operation(name, registrant, purchase_options).to_xml)
 
         order = order(response.body)
+        pp order.inspect
         order.add_domain(name, registrant)
         order.to_order
       end
