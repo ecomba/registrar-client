@@ -45,7 +45,10 @@ module Registrar
       end
 
       def order(raw_xml)
-        OpenSRS::Order.new(raw_xml)
+        id = Nokogiri::XML(raw_xml).xpath("//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='id']").inner_text
+        operation = Operation.new(:get_order_info, {
+          :order_id => id})
+        Registrar::Provider::OpenSRS::Order.new(execute(operation.to_xml).to_s)
       end
 
       private

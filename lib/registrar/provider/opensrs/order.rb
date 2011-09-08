@@ -1,5 +1,3 @@
-require 'nokogiri'
-
 module Registrar
   module Provider
     class OpenSRS
@@ -11,7 +9,7 @@ module Registrar
         end
         
         def id
-          @xml.xpath("//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='id']").inner_text
+          field_hash_element('id')
         end
         
         def successful?
@@ -19,7 +17,7 @@ module Registrar
         end
         
         def complete?
-          element("response_code").inner_text == '200'
+          field_hash_element("status") == 'completed'
         end
         
         def domains
@@ -49,6 +47,10 @@ module Registrar
 
         def element(element)
           @xml.xpath("//body/data_block/dt_assoc/item[@key='#{element}']")
+        end
+
+        def field_hash_element(element)
+          @xml.xpath("//dt_assoc/item[@key='attributes']/dt_assoc/item[@key='field_hash']/dt_assoc/item[@key='#{element}']").inner_text
         end
       end
     end
