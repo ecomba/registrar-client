@@ -36,6 +36,10 @@ describe "registrar client integration with opensrs" do
       it "returns true" do
         client.available?("1283475853rwjg.com").should be_true
       end
+
+      it 'returns true for an es domain' do
+        client.available?("1283475853rwjg.es").should be_true
+      end
     end
     context "for an unavailable domain" do
       it "returns false" do
@@ -73,6 +77,12 @@ describe "registrar client integration with opensrs" do
     context "for an available .com" do
       it_behaves_like "a real-time domain without extended attributes" do
         let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.com" }
+      end
+    end
+
+    context "for an available .es" do
+      it_behaves_like "a real-time domain without extended attributes" do
+        let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.es" }
       end
     end
 
