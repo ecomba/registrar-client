@@ -16,6 +16,14 @@ describe Registrar::Provider::Enom::Order do
   it "has the order date" do
     order.date.should eq(enom_order.order_date)
   end
+
+  it "has a status of 'unknown' by default" do
+    enom_order.status.should eq('unknown')
+  end
+  it "has an order status of 'unknown' by default" do
+    enom_order.order_status.should eq('unknown')
+  end
+
   context "a successful order" do
     before do
       enom_order.status = 'successful'
