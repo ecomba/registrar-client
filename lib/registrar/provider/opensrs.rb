@@ -31,6 +31,7 @@ module Registrar
       end
 
       def purchase(name, registrant, purchase_options=nil)
+        purchase_options ||= Registrar::PurchaseOptions.new
         response = execute(registration_operation(name, registrant, 
                                                   purchase_options).to_xml)
         order = check_order(response.body)
@@ -78,7 +79,7 @@ module Registrar
       def registration_operation(name, registrant, purchase_options)
         operation = Operation.new(:sw_register, {
           :domain => name,
-          :period => "1",
+          :period => purchase_options.number_of_years,
           :reg_type => "new",
           :handle => 'process',
           :reg_username => 'dnsimple',

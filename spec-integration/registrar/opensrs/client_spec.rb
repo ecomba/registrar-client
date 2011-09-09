@@ -41,10 +41,6 @@ describe "registrar client integration with opensrs" do
           client.available?("#{sld}.#{tld}").should be_true
         end
       end
-
-      it 'returns true for an es domain' do
-        client.available?("test-#{Time.now.to_i}-#{rand(10000)}.es").should be_true
-      end
     end
 
     context "for an unavailable domain" do
@@ -121,5 +117,15 @@ describe "registrar client integration with opensrs" do
       end
     end
 
+    context 'setting the period of' do
+      let(:purchase_options) { Registrar::PurchaseOptions.new } 
+      %w{ 1 2 3 4 5 6 7 8 9 10 }.each do |time|
+        it "#{time} years" do
+          name = "test-#{Time.now.to_i}-#{rand(10000)}.com"
+          purchase_options.number_of_years= time
+          client.purchase(name, registrant, purchase_options)
+        end
+      end
+    end
   end
 end

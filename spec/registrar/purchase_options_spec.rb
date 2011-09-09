@@ -10,7 +10,16 @@ describe Registrar::PurchaseOptions do
       subject.has_extended_attributes?.should be_false
     end
     it "returns nil for number of years" do
-      subject.number_of_years.should be_nil
+      subject.number_of_years.should eq 1
+    end
+  end
+
+  context 'setting values' do
+    let(:options) { Registrar::PurchaseOptions.new }
+
+    it 'sets the number of years' do 
+      options.number_of_years= 3
+      options.number_of_years.should eq 3
     end
   end
 end
