@@ -53,5 +53,14 @@ module Registrar #:nodoc:
     def purchase(name, registrant, registration_options=nil)
       provider.purchase(name, registrant, registration_options)
     end
+
+    # Check if the name servers of a given donain
+    #
+    # name - The fully-qualified domain name.
+    #
+    # Returns a list of name servers attached to this domain
+    def check_nameservers(name)
+      provider.check_nameservers(name)
+    end
   end
 end

@@ -38,7 +38,21 @@ module Registrar
         order.to_order
       end
 
+      def check_nameservers(name)
+        operation = Operation.new(:get, {
+          :domain => name, 
+          :type => "nameservers"
+        })
+        nameserver_list_from(execute(operation.to_xml).body)
+      end
+
       private
+      def nameserver_list_from(xml)
+        Nokogiri::XML(xml).xpath('//dt_array/item/dt_assoc/item[@key="name"]').map do |item|
+          Registrar::NameServer.new(item.content)
+        end
+      end
+
       def check_order(xml)
         order_info = execute(order_info_operation(order_id_from(xml)).to_xml)
         Registrar::Provider::OpenSRS::Order.new(order_info.to_s)
@@ -57,7 +71,7 @@ module Registrar
       def lookup_operation(name)
         operation = Operation.new(:lookup, {
           :domain => name, 
-          :no_cache => "1",
+          :no_cache => "1"
         })
       end
 
@@ -70,13 +84,19 @@ module Registrar
           :reg_username => 'dnsimple',
           :reg_password => 'password',
           :custom_tech_contact => '1',
+          :custom_nameservers => '1',
+          :nameserver_list => nameserver_list(purchase_options),
           :contact_set => contact_set(registrant),
           :tld_data => tld_data(purchase_options)
         })
       end
+      
+      def nameserver_list(purchase_options)
+        NameServerList.new(purchase_options) if purchase_options
+      end
 
       def tld_data(purchase_options)
-        TldData.build_with(purchase_options) if purchase_options
+        TldData.build_with(purchase_options) if purchase_options && purchase_options.extended_attributes != []
       end
 
       def contact_set(registrant)

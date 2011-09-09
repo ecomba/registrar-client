@@ -4,6 +4,7 @@ require 'httparty'
 require 'registrar/provider/opensrs'
 require 'registrar/provider/opensrs/tld_data'
 require 'registrar/provider/opensrs/tld_data_us'
+require 'registrar/provider/opensrs/name_server_list'
 
 describe "registrar client integration with opensrs" do
   let(:config) { YAML.load_file('spec-integration/opensrs.yml') }
@@ -34,11 +35,11 @@ describe "registrar client integration with opensrs" do
   describe "#available?" do
     context "for an available domain" do
       it "returns true" do
-        client.available?("1283475853rwjg.com").should be_true
+        client.available?("test-#{Time.now.to_i}-#{rand(10000)}.com").should be_true
       end
 
       it 'returns true for an es domain' do
-        client.available?("1283475853rwjg.es").should be_true
+        client.available?("test-#{Time.now.to_i}-#{rand(10000)}.es").should be_true
       end
     end
     context "for an unavailable domain" do
@@ -97,5 +98,23 @@ describe "registrar client integration with opensrs" do
         end
       end
     end
+
+    context 'name servers' do
+      let(:name) { "test-#{Time.now.to_i}-#{rand(10000)}.com" }
+      let(:nameserver){ Registrar::NameServer.new('ns1.dnsimple.com') }
+      let(:nameserver2){ Registrar::NameServer.new('ns2.dnsimple.com') }
+      let(:purchase_options) do
+        purchase_options = Registrar::PurchaseOptions.new
+        purchase_options.name_servers << nameserver
+        purchase_options.name_servers << nameserver2
+        purchase_options
+      end
+
+      it 'should have the nameservers assigned to the domain' do
+        client.purchase(name, registrant, purchase_options)
+        client.check_nameservers(name).should include nameserver, nameserver2
+      end
+    end
+
   end
 end
