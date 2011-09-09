@@ -123,8 +123,15 @@ describe "registrar client integration with opensrs" do
         it "#{time} years" do
           name = "test-#{Time.now.to_i}-#{rand(10000)}.com"
           purchase_options.number_of_years= time
-          client.purchase(name, registrant, purchase_options)
+          order = client.purchase(name, registrant, purchase_options)
+          order.should be_complete
         end
+      end
+      it "11 years" do
+        name = "test-#{Time.now.to_i}-#{rand(10000)}.com"
+        purchase_options.number_of_years= 11
+        order = client.purchase(name, registrant, purchase_options)
+        order.should_not be_successful
       end
     end
   end
