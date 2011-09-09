@@ -34,14 +34,19 @@ describe "registrar client integration with opensrs" do
 
   describe "#available?" do
     context "for an available domain" do
-      it "returns true" do
-        client.available?("test-#{Time.now.to_i}-#{rand(10000)}.com").should be_true
+      
+      sld = "test-#{Time.now.to_i}-#{rand(10000)}"
+      [:com, :de, :us].each do |tld|
+        it "returns true" do
+          client.available?("#{sld}.#{tld}").should be_true
+        end
       end
 
       it 'returns true for an es domain' do
         client.available?("test-#{Time.now.to_i}-#{rand(10000)}.es").should be_true
       end
     end
+
     context "for an unavailable domain" do
       it "returns false" do
         client.available?("google.com").should be_false
