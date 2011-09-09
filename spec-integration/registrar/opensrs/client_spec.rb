@@ -36,7 +36,7 @@ describe "registrar client integration with opensrs" do
     context "for an available domain" do
       
       sld = "test-#{Time.now.to_i}-#{rand(10000)}"
-      [:com, :de, :us].each do |tld|
+      %w{com de us}.each do |tld|
         it "returns true" do
           client.available?("#{sld}.#{tld}").should be_true
         end
